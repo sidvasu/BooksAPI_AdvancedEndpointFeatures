@@ -1,6 +1,7 @@
 # BooksAPI_AdvancedEndpointFeatures
 
 **Endpoints**
+
 `GET /api/books`: Lists all books
 
 `GET /api/books/{id}`: Returns book of specified ID
