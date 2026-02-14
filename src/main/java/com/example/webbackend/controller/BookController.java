@@ -40,13 +40,21 @@ public class BookController {
         return books;
     }
 
-    // Update a book
-    @PutMapping("/books/id")
-    public List<Book> updateBook() {
+    // Remove a book
+    @DeleteMapping("/books/{id}")
+    public List<Book> removeBook(@PathVariable Long id) {
+        books.remove(this.getBook(id));
         return books;
     }
 
     /*
+    // Update a book
+    @PutMapping("/books/id")
+    public List<Book> updateBook() {
+        return books.stream().filter(book -> book.getId().equals(id));
+    }
+
+
     // Partial update
 
     // Remove a book
