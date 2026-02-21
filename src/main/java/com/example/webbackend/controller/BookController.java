@@ -30,13 +30,25 @@ public class BookController {
     // Get book by id
     @GetMapping("/books/{id}")
     public Book getBook(@PathVariable Long id) {
-        return books.stream().filter(book -> book.getId().equals(id)).findFirst().orElse(null);
+        return books.stream()
+                .filter(book -> book.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     // Create a new book
     @PostMapping("/books")
     public List<Book> createBook(@RequestBody Book book) {
         books.add(book);
+        return books;
+    }
+
+    // Update a book
+    @PutMapping("/books/{id}")
+    public List<Book> updateBook(@RequestBody Book book, @PathVariable Long id) {
+        books = books.stream()
+                .map(b -> b.getId().equals(id) ? book : b)
+                .collect(Collectors.toList());
         return books;
     }
 
@@ -48,26 +60,7 @@ public class BookController {
     }
 
     /*
-    // Update a book
-    @PutMapping("/books/id")
-    public List<Book> updateBook() {
-        return books.stream().filter(book -> book.getId().equals(id));
-    }
-
-
     // Partial update
-
-    // Remove a book
-    @DeleteMapping("/books/id")
-    public List<Book> removeBook(@PathVariable Long id) {
-        for (int i = 0; i < books.length; i++) {
-            if (books[i].getId().equals(id)) {
-                books.remove();
-            }
-        }
-
-        return books;
-    }
 
     // Search by title
     @GetMapping("/books/search")
