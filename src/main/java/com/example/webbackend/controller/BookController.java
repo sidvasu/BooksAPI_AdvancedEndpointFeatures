@@ -23,7 +23,7 @@ public class BookController {
 
     // Get all books
     @GetMapping("/books")
-    public List<Book> getBooks() {
+    public List<Book> getBooks(@RequestParam(required = false, defaultValue = "1") Integer pages) {
         return books;
     }
 
@@ -52,6 +52,29 @@ public class BookController {
         return books;
     }
 
+    // Partially update a book
+    @PatchMapping("/books/{id}")
+    public List<Book> partialUpdateBook(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "") String title,
+            @RequestParam(required = false, defaultValue = "") String author,
+            @RequestParam(required = false, defaultValue = "-1.0") Double price
+    ) {
+        Book book = this.getBook(id);
+        if (title.isEmpty()) {
+            title = book.getTitle();
+        }
+        if (author.isEmpty()) {
+            author = book.getAuthor();
+        }
+        if (price == -1.0) {
+            price = book.getPrice();
+        }
+
+        book = new Book(id, title, author, price);
+        return this.updateBook(book, id);
+    }
+
     // Remove a book
     @DeleteMapping("/books/{id}")
     public List<Book> removeBook(@PathVariable Long id) {
@@ -60,8 +83,6 @@ public class BookController {
     }
 
     /*
-    // Partial update
-
     // Search by title
     @GetMapping("/books/search")
     public List<Book> searchByTitle(
