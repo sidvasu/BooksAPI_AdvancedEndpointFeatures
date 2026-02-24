@@ -15,6 +15,15 @@ public class BookController {
     private List<Book> books = new ArrayList<>();
     private Long id = 1L;
 
+    private List<Book> paginate(List<Book> entries, Integer page, Integer pageSize) {
+        int skip = page * pageSize;
+
+        return entries.stream()
+                .skip(skip)
+                .limit(pageSize)
+                .collect(Collectors.toList());
+    }
+
     public BookController() {
         books.add(new Book(id++, "Java", "Author 1", 20.0));
         books.add(new Book(id++, "Spring", "Author 2", 25.0));
@@ -23,8 +32,15 @@ public class BookController {
 
     // Get all books
     @GetMapping("/books")
-    public List<Book> getBooks(@RequestParam(required = false, defaultValue = "1") Integer pages) {
-        return books;
+    public List<Book> getBooks(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize
+    ) {
+        List<Book> result = books;
+        if (pageSize > 0) {
+            result = paginate(result, page, pageSize);
+        }
+        return result;
     }
 
     // Get book by id
@@ -38,29 +54,29 @@ public class BookController {
 
     // Create a new book
     @PostMapping("/books")
-    public List<Book> createBook(@RequestBody Book book) {
+    public Book createBook(@RequestBody Book book) {
         books.add(book);
-        return books;
+        return book;
     }
 
     // Update a book
     @PutMapping("/books/{id}")
-    public List<Book> updateBook(@RequestBody Book book, @PathVariable Long id) {
+    public Book updateBook(@RequestBody Book book, @PathVariable Long id) {
         books = books.stream()
                 .map(b -> b.getId().equals(id) ? book : b)
                 .collect(Collectors.toList());
-        return books;
+        return getBook(id);
     }
 
     // Partially update a book
     @PatchMapping("/books/{id}")
-    public List<Book> partialUpdateBook(
+    public Book partialUpdateBook(
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "") String title,
             @RequestParam(required = false, defaultValue = "") String author,
             @RequestParam(required = false, defaultValue = "-1.0") Double price
     ) {
-        Book book = this.getBook(id);
+        Book book = getBook(id);
         if (title.isEmpty()) {
             title = book.getTitle();
         }
@@ -72,13 +88,13 @@ public class BookController {
         }
 
         book = new Book(id, title, author, price);
-        return this.updateBook(book, id);
+        return updateBook(book, id);
     }
 
     // Remove a book
     @DeleteMapping("/books/{id}")
     public List<Book> removeBook(@PathVariable Long id) {
-        books.remove(this.getBook(id));
+        books.remove(getBook(id));
         return books;
     }
 
