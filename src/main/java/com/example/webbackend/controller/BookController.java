@@ -15,9 +15,31 @@ public class BookController {
     private List<Book> books = new ArrayList<>();
     private Long id = 1L;
 
-    private List<Book> paginate(List<Book> entries, Integer page, Integer pageSize) {
-        int skip = page * pageSize;
+    // Sorts books
+    private List<Book> sort(List<Book> entries, String sortBy, String order) {
+        Comparator<Book> comparator;
+        switch (sortBy.toLowerCase()) {
+            case "title" -> comparator = Comparator.comparing(Book::getTitle);
+            case "author" -> comparator = Comparator.comparing(Book::getAuthor);
+            case "price" -> comparator = Comparator.comparing(Book::getPrice);
+            default -> comparator = Comparator.comparing(Book::getId);
+        }
 
+        if (order.equalsIgnoreCase("desc")) {
+            comparator = comparator.reversed();
+        }
+        return entries.stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
+    // Pagination
+    private List<Book> paginate(List<Book> entries, Integer page, Integer pageSize) {
+        if (pageSize <= 0) {
+            return entries;
+        }
+
+        int skip = page * pageSize;
         return entries.stream()
                 .skip(skip)
                 .limit(pageSize)
@@ -34,12 +56,15 @@ public class BookController {
     @GetMapping("/books")
     public List<Book> getBooks(
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "0") Integer pageSize
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order
     ) {
         List<Book> result = books;
-        if (pageSize > 0) {
-            result = paginate(result, page, pageSize);
-        }
+
+        result = sort(result, sortBy, order);
+        result = paginate(result, page, pageSize);
+
         return result;
     }
 
@@ -96,28 +121,5 @@ public class BookController {
     public List<Book> removeBook(@PathVariable Long id) {
         books.remove(getBook(id));
         return books;
-    }
-
-    // Get all books sorted
-    @GetMapping("/books/sorted")
-    public List<Book> getSortedBooks(
-            @RequestParam(required = false, defaultValue = "title") String sortBy,
-            @RequestParam(required = false, defaultValue = "asc") String order
-    ) {
-        Comparator<Book> comparator;
-
-        if (sortBy.equalsIgnoreCase("author")) {
-            comparator = Comparator.comparing(Book::getAuthor);
-        }
-        else {
-            comparator = Comparator.comparing(Book::getTitle);
-        }
-
-        if (order.equalsIgnoreCase("desc")) {
-            comparator = comparator.reversed();
-        }
-
-        return books.stream().sorted(comparator)
-                .collect(Collectors.toList());
     }
 }
