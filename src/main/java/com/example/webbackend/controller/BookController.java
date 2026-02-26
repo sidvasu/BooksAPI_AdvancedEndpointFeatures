@@ -15,7 +15,17 @@ public class BookController {
     private List<Book> books = new ArrayList<>();
     private Long id = 1L;
 
-    // Sorts books
+    // Filter by price
+    private List<Book> filterByPrice(List<Book> entries, Double minPrice, Double maxPrice) {
+        if (maxPrice < 0.0 || minPrice < 0.0) {
+            return entries;
+        }
+        return entries.stream().
+                filter(book -> book.getPrice() >= minPrice && book.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
+    }
+
+    // Sort books
     private List<Book> sort(List<Book> entries, String sortBy, String order) {
         Comparator<Book> comparator;
         switch (sortBy.toLowerCase()) {
@@ -55,13 +65,16 @@ public class BookController {
     // Get all books
     @GetMapping("/books")
     public List<Book> getBooks(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "0") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "-1.0") Double minPrice,
+            @RequestParam(required = false, defaultValue = "-1.0") Double maxPrice,
             @RequestParam(required = false, defaultValue = "id") String sortBy,
-            @RequestParam(required = false, defaultValue = "asc") String order
+            @RequestParam(required = false, defaultValue = "asc") String order,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize
     ) {
         List<Book> result = books;
 
+        result = filterByPrice(result, minPrice, maxPrice);
         result = sort(result, sortBy, order);
         result = paginate(result, page, pageSize);
 
