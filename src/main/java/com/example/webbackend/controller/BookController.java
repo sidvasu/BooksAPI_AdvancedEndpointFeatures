@@ -57,9 +57,12 @@ public class BookController {
     }
 
     public BookController() {
-        books.add(new Book(id++, "Java", "Author 1", 20.0));
-        books.add(new Book(id++, "Spring", "Author 2", 25.0));
-        books.add(new Book(id++, "Spring Boot", "Author 3", 22.0));
+        books.add(new Book(id++, "The Alchemist", "Paulo Coelho", 48.0));
+        books.add(new Book(id++, "Rebecca", "Daphne Du Maurier", 37.0));
+        books.add(new Book(id++, "Les Miserables", "Victor Hugo", 22.0));
+        books.add(new Book(id++, "The Autobiography of Malcolm X", "Malcolm X", 65.0));
+        books.add(new Book(id++, "Frankenstein", "Mary Shelley", 26.0));
+        books.add(new Book(id++, "Murder on the Orient Express", "Agatha Christie", 13.0));
     }
 
     // Get all books
