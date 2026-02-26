@@ -17,8 +17,18 @@ public class BookController {
 
     // Filter by price
     private List<Book> filterByPrice(List<Book> entries, Double minPrice, Double maxPrice) {
-        if (maxPrice < 0.0 || minPrice < 0.0) {
+        if (maxPrice < 0.0 && minPrice < 0.0) {
             return entries;
+        }
+        else if (maxPrice < 0.0) {
+            return entries.stream().
+                    filter(book -> book.getPrice() >= minPrice)
+                    .collect(Collectors.toList());
+        }
+        else if (minPrice < 0.0) {
+            return entries.stream().
+                    filter(book -> book.getPrice() <= maxPrice)
+                    .collect(Collectors.toList());
         }
         return entries.stream().
                 filter(book -> book.getPrice() >= minPrice && book.getPrice() <= maxPrice)
